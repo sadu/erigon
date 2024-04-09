@@ -43,6 +43,7 @@ type ApiHandler struct {
 
 	blockReader     freezeblocks.BeaconSnapshotReader
 	indiciesDB      kv.RwDB
+	netConfig       *clparams.NetworkConfig
 	genesisCfg      *clparams.GenesisConfig
 	beaconChainCfg  *clparams.BeaconChainConfig
 	forkchoiceStore forkchoice.ForkChoiceStorage
@@ -76,6 +77,7 @@ type ApiHandler struct {
 
 func NewApiHandler(
 	logger log.Logger,
+	netConfig *clparams.NetworkConfig,
 	genesisConfig *clparams.GenesisConfig,
 	beaconChainConfig *clparams.BeaconChainConfig,
 	indiciesDB kv.RwDB,
@@ -104,6 +106,7 @@ func NewApiHandler(
 		logger:          logger,
 		validatorParams: validatorParams,
 		o:               sync.Once{},
+		netConfig:       netConfig,
 		genesisCfg:      genesisConfig,
 		beaconChainCfg:  beaconChainConfig,
 		indiciesDB:      indiciesDB,
@@ -205,7 +208,7 @@ func (a *ApiHandler) init() {
 						r.Get("/bls_to_execution_changes", beaconhttp.HandleEndpointFunc(a.GetEthV1BeaconPoolBLSExecutionChanges))
 						r.Post("/bls_to_execution_changes", a.PostEthV1BeaconPoolBlsToExecutionChanges)
 						r.Get("/attestations", beaconhttp.HandleEndpointFunc(a.GetEthV1BeaconPoolAttestations))
-						r.Post("/attestations", http.NotFound) // TODO
+						r.Post("/attestations", a.PostEthV1BeaconPoolAttestations)
 						r.Post("/sync_committees", a.PostEthV1BeaconPoolSyncCommittees)
 					})
 					r.Route("/light_client", func(r chi.Router) {

@@ -125,6 +125,10 @@ func (s *EngineServer) checkWithdrawalsPresence(time uint64, withdrawals []*type
 func (s *EngineServer) newPayload(ctx context.Context, req *engine_types.ExecutionPayload,
 	expectedBlobHashes []libcommon.Hash, parentBeaconBlockRoot *libcommon.Hash, version clparams.StateVersion,
 ) (*engine_types.PayloadStatus, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	var bloom types.Bloom
 	copy(bloom[:], req.LogsBloom)
 

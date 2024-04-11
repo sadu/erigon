@@ -32,13 +32,19 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Archive production artifacts
+      run: |
+        tar -cvf build-bin.tar ./build/bin
+        gzip build-bin.tar
+
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./build/bin
-        asset_name: build-bin
-        asset_content_type: application/zip
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./build-bin.tar.gz
+        asset_name: build-bin.tar.gz
+        asset_content_type: application/gzip
+
